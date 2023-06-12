@@ -1,0 +1,6 @@
+# ignore .NET build files
+bin/
+obj/
+
+# ignore VSCode configuration files
+.vscode/
