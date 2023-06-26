@@ -7,7 +7,7 @@ A sample generated passphrase looks like this:
 *password2023security-INCREASED
 ```
 
-By default, generated passphrases have 3 words, 2 special characters, and a 4-digit number. This provides 78 bits of entropy, which is equal to the strength of a fully-random 12-character ASCII password.
+By default, generated passphrases have 3 words, 2 special characters, and a 4-digit number. This provides 78 bits of entropy, which is equivalent to the strength of a fully-random 12-character ASCII password.
 
 The benefit of using Passphraser is that a password like `*password2023security-INCREASED` is much more memorable than `tZ0e4Sc#63$h`, yet it provides the same level of security and only requires you to remember 6 distinct items instead of 12.
 
@@ -79,7 +79,7 @@ The strength of this passphrase is equivalent to or better than that of a fully-
 The generated passphrase will always start with either a special character or a number. If you generate a passphrase with an odd number of words, there will always be N lowercase words, N-1 uppercase words, N special characters, and N-1 numbers. If you generate a passphrase with an even number of words, there will always be an equal number of lowercase words, uppercase words, special characters, and numbers.
 
 ## When should this be used?
-Passphraser generates passwords which are secure & memorable and satisfy the most popular password complexity requirements - a lowercase letter, an uppercase letter, a special character, and a number. ***You should only use Passphraser to generate a password when you are using an application or website whose password compelxity requirements match these conditions***:
+Passphraser generates passwords which are secure & memorable and satisfy the most popular password complexity requirements - a lowercase letter, an uppercase letter, a special character, and a number. ***You should only use Passphraser to generate a password when you are using an application or website whose password compelxity requirements match all of these conditions***:
 
 * Lowercase letters are allowed
 * Uppercase letters are allowed
