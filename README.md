@@ -49,7 +49,7 @@ Options:
   -?, -h, --help               Show help and usage information
 ```
 
-If you run passphraser with the -v or --verbose flags, it will print the detailed entropy information of the generated passphrase
+If you run passphraser with the -v or --verbose flags, it will print the detailed entropy information of the generated passphrase:
 
 ```
 ./bin/Release/net7.0/passphraser -v
