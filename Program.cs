@@ -125,6 +125,20 @@ static class Program {
         return passphrase.ToString();
     }
 
+    // round the bit entropy up if its decimal value of the base 2 logarithm is >= 0.5
+    // the calculation below is made because .NET doesn't have a floating point big number
+    // type and the result of BigInteger.Log2() is truncated instead of rounded up or down
+    static BigInteger GetRoundedBitEntropy(BigInteger value) {
+        var bitEntropy = BigInteger.Log2(value);
+        var remainder = BigInteger.ModPow(2, bitEntropy, value);
+
+        if (remainder >= (value / 2)) {
+            bitEntropy += 1;
+        }
+
+        return bitEntropy;
+    }
+
     static (BigInteger passphrasePermutations, BigInteger passphraseBitEntropy) GetPassphraseStrength(int wordCount, string[] wordlist) {
         int lowercaseWordCount, uppercaseWordCount, numberCount, specialCharacterCount;
         specialCharacterCount = lowercaseWordCount = (wordCount % 2 == 0) ? (wordCount / 2) : ((wordCount / 2) + 1);
@@ -150,7 +164,7 @@ static class Program {
 
         // this is a good explanation of password entropy calculation
         // https://crypto.stackexchange.com/a/376
-        var passphraseBitEntropy = BigInteger.Log2(passphrasePermutations);
+        var passphraseBitEntropy = GetRoundedBitEntropy(passphrasePermutations);
 
         return (passphrasePermutations, passphraseBitEntropy);
     }
@@ -169,7 +183,7 @@ static class Program {
 
         // previousPasswordPermutations is used here because at this point in the code passwordPermutations will be greater than passphrasePermutations
         // we need to return the maximum password permutations which is less than the passphrase permutations
-        var passwordBitEntropy = BigInteger.Log2(previousPasswordPermutations);
+        var passwordBitEntropy = GetRoundedBitEntropy(previousPasswordPermutations);
 
         return (previousPasswordPermutations, passwordLength - 1, passwordBitEntropy);
     }
