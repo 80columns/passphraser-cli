@@ -30,6 +30,8 @@ If you are on Windows and can't run `make`, you can run `dotnet build --configur
 
 Binaries for Passphraser are not made available on purpose. In general it is not wise to generate passwords using code you cannot audit. There are exceptions to this of course, for example when using well-known password manager applications.
 
+If you'd like to use Passphraser without installing any software, you can reference the [Passphraser Scripts](https://github.com/80columns/passphraser-scripts).
+
 ## Using Passphraser
 You can view the full list of options for Passphraser by running this command:
 
@@ -104,7 +106,7 @@ Contributions are welcome though development of Passphraser is guided by the sin
 Passphraser uses a public-domain word list which is available at [Passphraser Word List](https://github.com/80columns/passphraser-wordlist). The word list repository is a submodule of this one, so cloning this repository using Git with the `--recurse-submodules` flag will also pull down the word list.
 
 ## How it works
-You can read about the algorithm developed for Passphraser at [Passphraser Paper](#), as well as the motivation behind this project.
+You can read about the algorithm developed for Passphraser at [Passphraser Paper](https://github.com/80columns/passphraser-paper), as well as the motivation behind this project.
 
 ## FAQ
 
