@@ -6,6 +6,12 @@ using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 
+enum PassphrasePart {
+    Word,
+    Number,
+    SpecialCharacter
+}
+
 static class BigIntegerExtensions {
     public static BigInteger Factorial(this BigInteger number) {
         var factorial = number;
@@ -67,19 +73,20 @@ static class Program {
         return isLowercase ? word : word.ToUpper();
     }
 
-    static void AppendToken(ref StringBuilder builder, ref int decrementCounter, string appendValue) {
-        builder.Append(appendValue);
+    static void AppendToken(ref List<(string part, PassphrasePart partType)> passphraseParts, ref int decrementCounter, PassphrasePart partIdentifier, string appendValue) {
+        passphraseParts.Add((part: appendValue, partType: partIdentifier));
         decrementCounter--;
     }
 
-    static string GeneratePassphrase(int wordCount, string[] wordlist) {
-        var passphrase = new StringBuilder();
+    static List<(string part, PassphrasePart partType)> GeneratePassphrase(int wordCount, string[] wordlist) {
+        //var passphrase = new StringBuilder();
+        var passphraseParts = new List<(string, PassphrasePart)>();
         int lowercaseWordCount, uppercaseWordCount, numberCount, specialCharacterCount;
 
-        void AppendSpecialCharacter() => AppendToken(ref passphrase, ref specialCharacterCount, GenerateRandomSpecialCharacter());
-        void AppendNumber() => AppendToken(ref passphrase, ref numberCount, GenerateRandomNumber());
-        void AppendLowercaseWord() => AppendToken(ref passphrase, ref lowercaseWordCount, GenerateRandomWord(isLowercase: true, wordlist));
-        void AppendUppercaseWord() => AppendToken(ref passphrase, ref uppercaseWordCount, GenerateRandomWord(isLowercase: false, wordlist));
+        void AppendSpecialCharacter() => AppendToken(ref passphraseParts, ref specialCharacterCount, PassphrasePart.SpecialCharacter, GenerateRandomSpecialCharacter());
+        void AppendNumber() => AppendToken(ref passphraseParts, ref numberCount, PassphrasePart.Number, GenerateRandomNumber());
+        void AppendLowercaseWord() => AppendToken(ref passphraseParts, ref lowercaseWordCount, PassphrasePart.Word, GenerateRandomWord(isLowercase: true, wordlist));
+        void AppendUppercaseWord() => AppendToken(ref passphraseParts, ref uppercaseWordCount, PassphrasePart.Word, GenerateRandomWord(isLowercase: false, wordlist));
 
         // for an odd wordCount (wordCount = 2N + 1), there will be:
         //      N numbers and N + 1 special characters
@@ -122,7 +129,7 @@ static class Program {
             }
         }
 
-        return passphrase.ToString();
+        return passphraseParts;
     }
 
     // round the bit entropy up if its decimal value of the base 2 logarithm is >= 0.5
@@ -196,9 +203,21 @@ static class Program {
         }
 
         var wordlist = await ReadWordlistAsync();
-        var passphrase = GeneratePassphrase(wordCount, wordlist);
+        var passphraseParts = GeneratePassphrase(wordCount, wordlist);
+        var defaultConsoleColor = Console.ForegroundColor;
 
-        Console.WriteLine(passphrase);
+        foreach (var passphrasePart in passphraseParts) {
+            Console.ForegroundColor = passphrasePart.partType switch {
+                PassphrasePart.Number => ConsoleColor.Blue,
+                PassphrasePart.SpecialCharacter => ConsoleColor.Red,
+                PassphrasePart.Word or _ => defaultConsoleColor
+            };
+
+            Console.Write(passphrasePart.part);
+            Console.ResetColor();
+        }
+
+        Console.Write("\n");
 
         if (verbose) {
             var (passphrasePermutations, passphraseBitEntropy) = GetPassphraseStrength(wordCount, wordlist);
@@ -214,12 +233,12 @@ static class Program {
     static async Task<int> Main(string[] args) {
         var rootCommand = new RootCommand("Generates a secure and memorable passphrase");
         var wordCountOption = new Option<int>(
-            aliases: new string[] { "-w", "--wordCount" },
+            aliases: ["-w", "--wordCount"],
             getDefaultValue: () => 3,
             description: "The number of words that should be in the generated passphrase"
         );
         var verboseOption = new Option<bool>(
-            aliases: new string[] { "-v", "--verbose" },
+            aliases: ["-v", "--verbose"],
             getDefaultValue: () => false,
             description: "Print the complexity details of the generated passphrase"
         );

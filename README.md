@@ -12,7 +12,7 @@ By default, generated passphrases have 3 words, 2 special characters, and a 4-di
 The benefit of using Passphraser is that a password like `*password2023security-INCREASED` is much more memorable than `tZ0e4Sc#63$h`, yet it provides the same level of security and only requires you to remember 6 distinct items instead of 12.
 
 ## Setting up Passphraser
-To run the command-line version, you will need to [install the .NET runtime](https://learn.microsoft.com/en-us/dotnet/core/install/). .NET is available for [Windows](https://learn.microsoft.com/en-us/dotnet/core/install/windows?tabs=net70) / [MacOS](https://learn.microsoft.com/en-us/dotnet/core/install/macos) / [Linux](https://learn.microsoft.com/en-us/dotnet/core/install/linux). The Passphraser CLI was written for .NET 7 but should be compatible with future versions.
+To run the command-line version, you will need to [install the .NET runtime](https://learn.microsoft.com/en-us/dotnet/core/install/). .NET is available for [Windows](https://learn.microsoft.com/en-us/dotnet/core/install/windows?tabs=net80) / [MacOS](https://learn.microsoft.com/en-us/dotnet/core/install/macos) / [Linux](https://learn.microsoft.com/en-us/dotnet/core/install/linux). The Passphraser CLI is currently written for .NET 8 and should be compatible with future versions.
 
 After installing .NET, you can build & run Passphraser with the commands below:
 
@@ -23,7 +23,7 @@ cd passphraser-cli
 
 make
 
-./bin/Release/net7.0/passphraser
+./bin/Release/net8.0/passphraser
 ```
 
 If you are on Windows and can't run `make`, you can run `dotnet build --configuration Release` instead and it will perform the same action.
@@ -36,7 +36,7 @@ If you'd like to use Passphraser without installing any software, you can refere
 You can view the full list of options for Passphraser by running this command:
 
 ```
-./bin/Release/net7.0/passphraser --help
+./bin/Release/net8.0/passphraser --help
 
 Description:
   Generates a secure and memorable passphrase
@@ -54,7 +54,7 @@ Options:
 If you run passphraser with the -v or --verbose flags, it will print the detailed entropy information of the generated passphrase:
 
 ```
-./bin/Release/net7.0/passphraser -v
+./bin/Release/net8.0/passphraser -v
 
 *TRIARCH9118unallocated<placoidean
 
@@ -65,13 +65,13 @@ The strength of this passphrase is equivalent to or better than that of a fully-
 Passphraser will only generate passphrases with a minimum of 3 words, but you can specify any number of words above that:
 
 ```
-./bin/Release/net7.0/passphraser -w 4 -v
+./bin/Release/net8.0/passphraser -w 4 -v
 2347mazarine5368INEFFECTIVE=videotaped}TOEBOARD
 
 This passphrase is 1 of 3.25E+33 possible passphrases and has 111 bits of entropy
 The strength of this passphrase is equivalent to or better than that of a fully-random 16-character ASCII password, which has 3.72E+31 possible passwords and 104 bits of entropy
 
-./bin/Release/net7.0/passphraser -w 5
+./bin/Release/net8.0/passphraser -w 5
 %asyndetically9883FALTERINGLY4272PRECOGNITIVE_sapples}suffusive
 
 This passphrase is 1 of 5.25E+40 possible passphrases and has 135 bits of entropy
