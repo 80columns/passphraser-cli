@@ -79,7 +79,6 @@ static class Program {
     }
 
     static List<(string part, PassphrasePart partType)> GeneratePassphrase(int wordCount, string[] wordlist) {
-        //var passphrase = new StringBuilder();
         var passphraseParts = new List<(string, PassphrasePart)>();
         int lowercaseWordCount, uppercaseWordCount, numberCount, specialCharacterCount;
 
