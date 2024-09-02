@@ -4,7 +4,6 @@ using System.CommandLine;
 using System.IO;
 using System.Numerics;
 using System.Security.Cryptography;
-using System.Text;
 
 enum PassphrasePart {
     Word,
@@ -16,7 +15,7 @@ static class BigIntegerExtensions {
     public static BigInteger Factorial(this BigInteger number) {
         var factorial = number;
 
-        for (var i = number - 1; i > 0; i--) {
+        for (var i = number - 1; i > 1; i--) {
             factorial *= i;
         }
 
@@ -29,7 +28,7 @@ static class Program {
     static readonly int numberLowerBoundInclusive = 1_000;
     static readonly int numberUpperBoundExclusive = 10_000;
     // there are 32 special characters on a US-English keyboard
-    static readonly char[] specialCharacters = new char[] {
+    static readonly char[] specialCharacters = [
         '`', '~', '!', '@',
         '#', '$', '%', '^',
         '&', '*', '(', ')',
@@ -38,7 +37,7 @@ static class Program {
         ':', ';', '"', '\'',
         ',', '<', '.', '>',
         '?', '/', '|', '\\'
-    };
+    ];
 
     static async Task<string[]> ReadWordlistAsync() {
         var wordlist = await File.ReadAllLinesAsync(path: Program.wordlistFile);
@@ -78,6 +77,21 @@ static class Program {
         decrementCounter--;
     }
 
+    // for an odd wordCount (wordCount = 2N + 1), there will be:
+    //      N numbers and N + 1 special characters
+    //      N uppercase words and N + 1 lowercase words
+
+    // for an even wordCount (wordCount = 2N), there will be:
+    //      N numbers and N special characters
+    //      N uppercase words and N lowercase words
+    static int GetSpecialCharacterAndLowercaseWordCount(int wordCount) {
+        return (wordCount % 2 == 0) ? (wordCount / 2) : ((wordCount / 2) + 1);
+    }
+
+    static int GetNumberAndUppercaseWordCount(int wordCount) {
+        return wordCount / 2;
+    }
+
     static List<(string part, PassphrasePart partType)> GeneratePassphrase(int wordCount, string[] wordlist) {
         var passphraseParts = new List<(string, PassphrasePart)>();
         int lowercaseWordCount, uppercaseWordCount, numberCount, specialCharacterCount;
@@ -87,19 +101,8 @@ static class Program {
         void AppendLowercaseWord() => AppendToken(ref passphraseParts, ref lowercaseWordCount, PassphrasePart.Word, GenerateRandomWord(isLowercase: true, wordlist));
         void AppendUppercaseWord() => AppendToken(ref passphraseParts, ref uppercaseWordCount, PassphrasePart.Word, GenerateRandomWord(isLowercase: false, wordlist));
 
-        // for an odd wordCount (wordCount = 2N + 1), there will be:
-        //      N numbers and N + 1 special characters
-        //      N uppercase words and N + 1 lowercase words
-
-        // for an even wordCount (wordCount = 2N), there will be:
-        //      N numbers and N special characters
-        //      N uppercase words and N lowercase words
-        lowercaseWordCount = uppercaseWordCount = numberCount = specialCharacterCount = wordCount / 2;
-
-        if (wordCount % 2 == 1) {
-            lowercaseWordCount++;
-            specialCharacterCount++;
-        }
+        specialCharacterCount = lowercaseWordCount = GetSpecialCharacterAndLowercaseWordCount(wordCount);
+        numberCount = uppercaseWordCount = GetNumberAndUppercaseWordCount(wordCount);
 
         // run the loop while there are words to append
         while (lowercaseWordCount > 0 || uppercaseWordCount > 0) {
@@ -147,8 +150,8 @@ static class Program {
 
     static (BigInteger passphrasePermutations, BigInteger passphraseBitEntropy) GetPassphraseStrength(int wordCount, string[] wordlist) {
         int lowercaseWordCount, uppercaseWordCount, numberCount, specialCharacterCount;
-        specialCharacterCount = lowercaseWordCount = (wordCount % 2 == 0) ? (wordCount / 2) : ((wordCount / 2) + 1);
-        numberCount = uppercaseWordCount = wordCount / 2;
+        specialCharacterCount = lowercaseWordCount = GetSpecialCharacterAndLowercaseWordCount(wordCount);
+        numberCount = uppercaseWordCount = GetNumberAndUppercaseWordCount(wordCount);
 
         // see https://en.wikipedia.org/wiki/Permutation, "Permutations of multisets"
         // or https://byjus.com/maths/permutation/, "Permutation of multi-sets"
