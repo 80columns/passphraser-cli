@@ -24,7 +24,6 @@ static class BigIntegerExtensions {
 }
 
 static class Program {
-    static readonly string wordlistFile = "wordlist/wordlist.txt";
     static readonly int numberLowerBoundInclusive = 1_000;
     static readonly int numberUpperBoundExclusive = 10_000;
     // there are 32 special characters on a US-English keyboard
@@ -39,8 +38,12 @@ static class Program {
         '?', '/', '|', '\\'
     ];
 
-    static async Task<string[]> ReadWordlistAsync() {
-        var wordlist = await File.ReadAllLinesAsync(path: Program.wordlistFile);
+    static string GetDefaultWordlistPath() {
+        return Path.Combine(AppContext.BaseDirectory, "wordlist", "wordlist.txt");
+    }
+
+    static async Task<string[]> ReadWordlistAsync(string wordlistPath) {
+        var wordlist = await File.ReadAllLinesAsync(path: wordlistPath);
 
         return wordlist;
     }
@@ -197,14 +200,19 @@ static class Program {
         return (previousPasswordPermutations, passwordLength - 1, passwordBitEntropy);
     }
 
-    static async Task RunProgramAsync(int wordCount, bool verbose) {
+    static async Task RunProgramAsync(int wordCount, bool verbose, string? wordlistPath) {
         if (wordCount < 3) {
             wordCount = 3;
 
             Console.WriteLine("The -w/--wordCount parameter has a minimum value of 3\n");
         }
 
-        var wordlist = await ReadWordlistAsync();
+        if (string.IsNullOrWhiteSpace(wordlistPath) || !File.Exists(wordlistPath)) {
+            Console.WriteLine("Error: Invalid wordlist file path.");
+            return;
+        }
+
+        var wordlist = await ReadWordlistAsync(wordlistPath);
         var passphraseParts = GeneratePassphrase(wordCount, wordlist);
         var defaultConsoleColor = Console.ForegroundColor;
 
@@ -244,14 +252,20 @@ static class Program {
             getDefaultValue: () => false,
             description: "Print the complexity details of the generated passphrase"
         );
+        var wordlistOption = new Option<string?>(
+            aliases: new string[] { "--wordlist" },
+            getDefaultValue: () => GetDefaultWordlistPath(),
+            description: "The path to the wordlist file"
+        );
 
         rootCommand.AddOption(wordCountOption);
         rootCommand.AddOption(verboseOption);
+        rootCommand.AddOption(wordlistOption);
 
-        rootCommand.SetHandler(async (wordCount, verbose) => {
-            await RunProgramAsync(wordCount, verbose);
+        rootCommand.SetHandler(async (wordCount, verbose, wordlistPath) => {
+            await RunProgramAsync(wordCount, verbose, wordlistPath);
         },
-        wordCountOption, verboseOption);
+        wordCountOption, verboseOption, wordlistOption);
 
         return await rootCommand.InvokeAsync(args);
     }
